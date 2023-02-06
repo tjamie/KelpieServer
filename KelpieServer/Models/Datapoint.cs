@@ -4,6 +4,14 @@ namespace KelpieServer.Models
 {
     public class Hydrology
     {
+        public class WaterPresence
+        {
+            public float? Depth { get; set; }
+
+            [Required]
+            public bool Present { get; set; } = false;
+        }
+
         [Required]
         public bool Present { get; set; } = false;
 
@@ -13,17 +21,14 @@ namespace KelpieServer.Models
         [Required]
         public bool Problematic { get; set; } = false;
 
-        // surface water
-        public float? SurfaceWaterDepth { get; set; }
-        public bool? SurfaceWaterPresent { get; set; }
+        [Required]
+        public WaterPresence SurfaceWater { get; set; } = new WaterPresence();
 
-        // water table
-        public float? WaterTableDepth { get; set; }
-        public bool? WaterTablePresent { get; set; }
+        [Required]
+        public WaterPresence WaterTable { get; set; } = new WaterPresence();
 
-        // saturation
-        public float? SaturationDepth { get; set; }
-        public bool? SaturationPresent { get; set; }
+        [Required]
+        public WaterPresence Saturation { get; set; } = new WaterPresence();
 
         [Required]
         public string[] SecondaryIndicators { get; set; } = Array.Empty<string>();
