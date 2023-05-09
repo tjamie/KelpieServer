@@ -1,47 +1,33 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+// Migrations etc:
+// https://www.entityframeworktutorial.net/efcore/entity-framework-core-migration.aspx
 
 namespace KelpieServer.Models
 {
+    public class WaterPresence
+    {
+        public float? Depth { get; set; }
+        public bool Present { get; set; } = false;
+    }
     public class Hydrology
     {
-        public class WaterPresence
-        {
-            public float? Depth { get; set; }
-
-            [Required]
-            public bool Present { get; set; } = false;
-        }
-
-        [Required]
         public bool Present { get; set; } = false;
-
-        [Required]
         public bool Disturbed { get; set; } = false;
-
-        [Required]
         public bool Problematic { get; set; } = false;
-
-        [Required]
         public WaterPresence SurfaceWater { get; set; } = new WaterPresence();
-
-        [Required]
         public WaterPresence WaterTable { get; set; } = new WaterPresence();
-
-        [Required]
         public WaterPresence Saturation { get; set; } = new WaterPresence();
-
-        [Required]
         public string[] SecondaryIndicators { get; set; } = Array.Empty<string>();
-
-        [Required]
         public string[] PrimaryIndicators { get; set; } = Array.Empty<string>();
 
         public string? Remarks { get; set; } = string.Empty;
     }
-        
+
     public class Datapoint
     {
-        [Required]
+        [Key, Required]
         public int Id { get; set; }
 
         [Required]
@@ -71,7 +57,7 @@ namespace KelpieServer.Models
 
         public string? NWI { get; set; }
 
-        [Required]
+        [Required, Column(TypeName = "jsonb")]
         public Hydrology Hydrology { get; set; } = new Hydrology();
 
         // finish everything else once database is running
