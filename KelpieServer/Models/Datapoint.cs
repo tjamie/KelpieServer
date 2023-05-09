@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KelpieServer.Models
 {
+    // Hydrology JSON
     public class WaterPresence
     {
         public float? Depth { get; set; }
@@ -25,6 +26,48 @@ namespace KelpieServer.Models
         public string? Remarks { get; set; } = string.Empty;
     }
 
+    // Vegetation JSON
+    // TODO
+
+    // Soils JSON
+    public class RestrictiveLayer
+    {
+        public string? Type { get; set; }
+        public int? Depth { get; set; }
+    }
+    public class SoilColor
+    {
+        public string Hue { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+        public string Chroma { get; set; } = string.Empty;
+    }
+    public class SoilLayer
+    {
+        public int Id { get; set; } = 0;
+        public int DepthStart { get; set; } = 0;
+        public int DepthEnd { get; set; } = 0;
+        public string Texture { get; set; } = string.Empty;
+        public string Remarks { get; set; } = string.Empty;
+        public SoilColor MatrixColor { get; set; } = new SoilColor();
+        public SoilColor RedoxColor { get; set; } = new SoilColor();
+        public int MatrixPercent { get; set; } = 100;
+        public int RedoxPercent { get; set; } = 0;
+        public string? RedoxType { get; set; }
+        public string? RedoxLocation { get; set; }
+    }
+    public class Soil
+    {
+        public bool Present { get; set; } = false;
+        public bool Disturbed { get; set; } = false;
+        public bool Problematic { get; set; } = false;
+        public RestrictiveLayer RestrictiveLayer { get; set; } = new RestrictiveLayer();
+        public string[] Indicators { get; set; } = Array.Empty<string>();
+        public string[] ProblematicIndicators { get; set; } = Array.Empty<string>();
+        public string? Remarks { get; set; } = string.Empty;
+        public SoilLayer[] Layers { get; set; } = Array.Empty<SoilLayer>();
+    }
+
+    // Full Datapoint
     public class Datapoint
     {
         [Key, Required]
@@ -59,6 +102,9 @@ namespace KelpieServer.Models
 
         [Required, Column(TypeName = "jsonb")]
         public Hydrology Hydrology { get; set; } = new Hydrology();
+
+        [Required, Column(TypeName = "jsonb")]
+        public Soil Soil { get; set; } = new Soil();
 
         // finish everything else once database is running
 
