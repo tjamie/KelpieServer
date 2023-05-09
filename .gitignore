@@ -366,3 +366,5 @@ FodyWeavers.xsd
 KelpieServer/WeatherForecast.cs
 KelpieServer/Controllers/WeatherForecastController.cs
 KelpieServer/Examples
+KelpieServer/appsettings.json
+KelpieServer/Migrations
