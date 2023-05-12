@@ -22,12 +22,46 @@ namespace KelpieServer.Models
         public WaterPresence Saturation { get; set; } = new WaterPresence();
         public string[] SecondaryIndicators { get; set; } = Array.Empty<string>();
         public string[] PrimaryIndicators { get; set; } = Array.Empty<string>();
-
-        public string? Remarks { get; set; } = string.Empty;
+        public string Remarks { get; set; } = string.Empty;
     }
 
     // Vegetation JSON
-    // TODO
+    public class Plant
+    {
+        public int Id { get; set; } = 0;
+        public string Species { get; set; } = "";
+        public string Indicator { get; set; } = "";
+        public int Cover { get; set; } = 0;
+        public bool Dominant { get; set; } = false;
+    }
+
+     public class Strata
+    {
+        public Plant[] Herb { get; set; } = Array.Empty<Plant>();
+        public Plant[] SaplingShrub { get; set; } = Array.Empty<Plant>();
+        public Plant[] Tree { get; set; } = Array.Empty<Plant>();
+        public Plant[] Vine { get; set;} = Array.Empty<Plant>();
+    }
+
+    public class VegetationIndicators
+    {
+        public bool RapidTest { get; set; } = false;
+        public bool DomTest { get; set; } = false;
+        public bool PrevIndex { get; set; } = false;
+        public int DomWet { get; set; } = 0;
+        public int DomTotal { get; set; } = 0;
+        public float PrevIndexValue { get; set; } = 0f;
+    }
+
+    public class Vegetation
+    {
+        public bool Present { get; set; } = false;
+        public bool Disturbed { get; set; } = false;
+        public bool Problematic { get; set; } = false;
+        public Strata Strata { get; set; } = new Strata();
+        public VegetationIndicators Indicators { get; set; } = new VegetationIndicators();
+        public string Remarks { get; set; } = string.Empty;
+    }
 
     // Soils JSON
     public class RestrictiveLayer
@@ -63,7 +97,7 @@ namespace KelpieServer.Models
         public RestrictiveLayer RestrictiveLayer { get; set; } = new RestrictiveLayer();
         public string[] Indicators { get; set; } = Array.Empty<string>();
         public string[] ProblematicIndicators { get; set; } = Array.Empty<string>();
-        public string? Remarks { get; set; } = string.Empty;
+        public string Remarks { get; set; } = string.Empty;
         public SoilLayer[] Layers { get; set; } = Array.Empty<SoilLayer>();
     }
 
@@ -96,7 +130,7 @@ namespace KelpieServer.Models
 
         public double? Latitude { get; set; }
 
-        public double? Longitude { get; set;}
+        public double? Longitude { get; set; }
 
         public string? NWI { get; set; }
 
@@ -106,7 +140,7 @@ namespace KelpieServer.Models
         [Required, Column(TypeName = "jsonb")]
         public Soil Soil { get; set; } = new Soil();
 
-        // finish everything else once database is running
-
+        [Required, Column(TypeName = "jsonb")]
+        public Vegetation Vegetation { get; set; } = new Vegetation();
     }
 }
