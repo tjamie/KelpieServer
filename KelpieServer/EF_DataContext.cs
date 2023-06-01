@@ -8,6 +8,7 @@ namespace KelpieServer
         public EF_DataContext(DbContextOptions<EF_DataContext> options) : base(options) { }
         public DbSet<Datapoint> Datapoints { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
