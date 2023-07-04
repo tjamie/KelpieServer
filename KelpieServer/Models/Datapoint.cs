@@ -108,7 +108,8 @@ namespace KelpieServer.Models
         public string Id { get; set; } = string.Empty;
 
         [Required]
-        public int ProjectId { get; set; }
+        public string ProjectId { get; set; } = string.Empty;
+        public Project Project { get; set; } = new Project();
 
         [Required]
         public int Date { get; set; }

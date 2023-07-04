@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KelpieServer.Models
 {
@@ -26,5 +27,8 @@ namespace KelpieServer.Models
         public string? Subregion { get; set; }
 
         public string? Datum { get; set; }
+
+        [ForeignKey("ProjectId")]
+        public ICollection<Datapoint>? Datapoints { get; set; }
     }
 }
