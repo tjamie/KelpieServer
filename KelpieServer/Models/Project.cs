@@ -5,7 +5,7 @@ namespace KelpieServer.Models
     public class Project
     {
         [Required]
-        public int Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
         [Required]
         public int Date { get; set; }

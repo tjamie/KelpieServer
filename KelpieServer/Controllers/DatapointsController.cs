@@ -34,7 +34,7 @@ namespace KelpieServer.Controllers
 
         // GET: api/Datapoints/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Datapoint>> GetDatapoint(int id)
+        public async Task<ActionResult<Datapoint>> GetDatapoint(string id)
         {
           if (_context.Datapoints == null)
           {
@@ -53,7 +53,7 @@ namespace KelpieServer.Controllers
         // PUT: api/Datapoints/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDatapoint(int id, Datapoint datapoint)
+        public async Task<IActionResult> PutDatapoint(string id, Datapoint datapoint)
         {
             if (id != datapoint.Id)
             {
@@ -98,7 +98,7 @@ namespace KelpieServer.Controllers
 
         // DELETE: api/Datapoints/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteDatapoint(int id)
+        public async Task<IActionResult> DeleteDatapoint(string id)
         {
             if (_context.Datapoints == null)
             {
@@ -116,7 +116,7 @@ namespace KelpieServer.Controllers
             return NoContent();
         }
 
-        private bool DatapointExists(int id)
+        private bool DatapointExists(string id)
         {
             return (_context.Datapoints?.Any(e => e.Id == id)).GetValueOrDefault();
         }

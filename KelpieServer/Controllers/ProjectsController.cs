@@ -34,7 +34,7 @@ namespace KelpieServer.Controllers
 
         // GET: api/Projects/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> GetProject(int id)
+        public async Task<ActionResult<Project>> GetProject(string id)
         {
           if (_context.Projects == null)
           {
@@ -53,7 +53,7 @@ namespace KelpieServer.Controllers
         // PUT: api/Projects/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProject(int id, Project project)
+        public async Task<IActionResult> PutProject(string id, Project project)
         {
             if (id != project.Id)
             {
@@ -98,7 +98,7 @@ namespace KelpieServer.Controllers
 
         // DELETE: api/Projects/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProject(int id)
+        public async Task<IActionResult> DeleteProject(string id)
         {
             if (_context.Projects == null)
             {
@@ -116,7 +116,7 @@ namespace KelpieServer.Controllers
             return NoContent();
         }
 
-        private bool ProjectExists(int id)
+        private bool ProjectExists(string id)
         {
             return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
         }

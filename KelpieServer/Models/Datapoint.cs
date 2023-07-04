@@ -28,9 +28,9 @@ namespace KelpieServer.Models
     // Vegetation JSON
     public class Plant
     {
-        public int Id { get; set; } = 0;
-        public string Species { get; set; } = "";
-        public string Indicator { get; set; } = "";
+        public string Id { get; set; } = string.Empty;
+        public string Species { get; set; } = string.Empty;
+        public string Indicator { get; set; } = string.Empty;
         public int Cover { get; set; } = 0;
         public bool Dominant { get; set; } = false;
     }
@@ -77,7 +77,7 @@ namespace KelpieServer.Models
     }
     public class SoilLayer
     {
-        public int Id { get; set; } = 0;
+        public string Id { get; set; } = string.Empty;
         public int DepthStart { get; set; } = 0;
         public int DepthEnd { get; set; } = 0;
         public string Texture { get; set; } = string.Empty;
@@ -105,7 +105,7 @@ namespace KelpieServer.Models
     public class Datapoint
     {
         [Key, Required]
-        public int Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
         [Required]
         public int ProjectId { get; set; }
