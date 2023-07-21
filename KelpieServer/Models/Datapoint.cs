@@ -85,7 +85,7 @@ namespace KelpieServer.Models
         public SoilColor MatrixColor { get; set; } = new SoilColor();
         public SoilColor RedoxColor { get; set; } = new SoilColor();
         public int MatrixPercent { get; set; } = 100;
-        public int RedoxPercent { get; set; } = 0;
+        public int? RedoxPercent { get; set; }
         public string? RedoxType { get; set; }
         public string? RedoxLocation { get; set; }
     }
@@ -112,7 +112,7 @@ namespace KelpieServer.Models
         public Project Project { get; set; } = new Project();
 
         [Required]
-        public int Date { get; set; }
+        public long Date { get; set; }
 
         [Required]
         public string Name { get; set; } = string.Empty;

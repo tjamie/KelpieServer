@@ -9,7 +9,7 @@ namespace KelpieServer.Models
         public string Id { get; set; } = string.Empty;
 
         [Required]
-        public int Date { get; set; }
+        public long Date { get; set; }
 
         [Required]
         public string Name { get; set; } = string.Empty;
