@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -8,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using KelpieServer;
 using KelpieServer.Models;
 
+// Will need to validate json data from front end
 namespace KelpieServer.Controllers
 {
     [Route("api/[controller]")]
@@ -25,10 +27,11 @@ namespace KelpieServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Datapoint>>> GetDatapoints()
         {
-          if (_context.Datapoints == null)
-          {
-              return NotFound();
-          }
+            Debug.Print("Getting datapoints");
+            if (_context.Datapoints == null)
+            {
+                return NotFound();
+            }
             return await _context.Datapoints.ToListAsync();
         }
 
@@ -86,10 +89,10 @@ namespace KelpieServer.Controllers
         [HttpPost]
         public async Task<ActionResult<Datapoint>> PostDatapoint(Datapoint datapoint)
         {
-          if (_context.Datapoints == null)
-          {
-              return Problem("Entity set 'EF_DataContext.Datapoints'  is null.");
-          }
+            if (_context.Datapoints == null)
+            {
+                return Problem("Entity set 'EF_DataContext.Datapoints'  is null.");
+            }
             _context.Datapoints.Add(datapoint);
             await _context.SaveChangesAsync();
 

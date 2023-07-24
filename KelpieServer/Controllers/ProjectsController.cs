@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -23,18 +24,24 @@ namespace KelpieServer.Controllers
 
         // GET: api/Projects
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
+        public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProjects()
         {
-          if (_context.Projects == null)
-          {
-              return NotFound();
-          }
-            return await _context.Projects.ToListAsync();
+            if (_context.Projects == null)
+            {
+                return NotFound();
+            }
+            var projectsList = await _context.Projects.ToListAsync();
+            List<ProjectDto> projectDtoList = new List<ProjectDto>();
+            foreach (Project project in projectsList)
+            {
+                projectDtoList.Add(new ProjectDto(project));
+            }
+            return projectDtoList;
         }
 
         // GET: api/Projects/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> GetProject(string id)
+        public async Task<ActionResult<ProjectDto>> GetProject(string id)
         {
           if (_context.Projects == null)
           {
@@ -47,23 +54,22 @@ namespace KelpieServer.Controllers
                 return NotFound();
             }
 
-            return project;
+            return new ProjectDto(project);
         }
 
         // PUT: api/Projects/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProject(string id, Project project)
+        public async Task<IActionResult> PutProject(string id, ProjectDto project)
         {
             if (id != project.Id)
             {
                 return BadRequest();
             }
-
-            _context.Entry(project).State = EntityState.Modified;
-
             try
             {
+                var targetProject = await _context.Projects.FindAsync(id);
+                targetProject?.Update(project);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -84,13 +90,13 @@ namespace KelpieServer.Controllers
         // POST: api/Projects
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Project>> PostProject(Project project)
+        public async Task<ActionResult<Project>> PostProject(ProjectDto project)
         {
           if (_context.Projects == null)
           {
               return Problem("Entity set 'EF_DataContext.Projects'  is null.");
           }
-            _context.Projects.Add(project);
+            _context.Projects.Add(new Project(project));
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetProject", new { id = project.Id }, project);

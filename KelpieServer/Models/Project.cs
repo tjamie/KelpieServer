@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KelpieServer.Models
 {
-    public class Project
+    public partial class Project
     {
         [Required]
         public string Id { get; set; } = string.Empty;
