@@ -13,8 +13,10 @@ namespace KelpieServer.Models
         public string Id { get; set; } = string.Empty;
 
         [Required]
-        public string ProjectId { get; set; } = string.Empty;
-        public Project Project { get; set; } = new Project();
+        public string ProjectId { get; set; }
+        public Project Project { get; set; } = null!;
+        //public string ProjectId { get; set; } = string.Empty;
+        //public Project Project { get; set; } = new Project();
 
         [Required]
         public long Date { get; set; }

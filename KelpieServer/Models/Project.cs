@@ -28,7 +28,8 @@ namespace KelpieServer.Models
 
         public string? Datum { get; set; }
 
-        [ForeignKey("ProjectId")]
-        public ICollection<Datapoint>? Datapoints { get; set; }
+        //[ForeignKey("ProjectId")]
+        //public ICollection<Datapoint> Datapoints { get; set; }
+        public ICollection<Datapoint> Datapoints { get; } = new List<Datapoint>();
     }
 }

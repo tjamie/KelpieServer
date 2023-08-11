@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KelpieServer;
 using KelpieServer.Models;
+using KelpieServer.Mappers;
 
 // Will need to validate json data from front end
 namespace KelpieServer.Controllers
@@ -50,7 +51,14 @@ namespace KelpieServer.Controllers
                 return NotFound();
             }
 
-            return datapoint;
+            var datapointResponse = new DatapointResponseDto
+            {
+                Id = datapoint.Id,
+                ProjectId = datapoint.ProjectId,
+                Name = datapoint.Name
+            };
+
+            return Ok(datapointResponse);
         }
 
         // PUT: api/Datapoints/5
@@ -87,12 +95,16 @@ namespace KelpieServer.Controllers
         // POST: api/Datapoints
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Datapoint>> PostDatapoint(Datapoint datapoint)
+        public async Task<ActionResult<Datapoint>> PostDatapoint(DatapointDto datapointDto)
         {
             if (_context.Datapoints == null)
             {
-                return Problem("Entity set 'EF_DataContext.Datapoints'  is null.");
+                return Problem("Entity set 'EF_DataContext.Datapoints' is null.");
             }
+            
+            var datapointMapper = new DatapointMapper();
+            var datapoint = datapointMapper.MapToEntity(datapointDto);
+            //_context.Datapoints.Add(new Datapoint(datapoint));
             _context.Datapoints.Add(datapoint);
             await _context.SaveChangesAsync();
 
