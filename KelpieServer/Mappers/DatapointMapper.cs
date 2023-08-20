@@ -26,5 +26,26 @@ namespace KelpieServer.Mappers
                 Soil = dto.Soil
             };
         }
+
+        // Prevent creating a new Datapoint object
+        public void MapToEntity(DatapointDto dto, ref Datapoint target)
+        {
+            target.Id = dto.Id;
+            target.ProjectId = dto.ProjectId;
+            target.Date = dto.Date;
+            target.Name = dto.Name;
+            target.Authors = dto.Authors ?? null;
+            target.Landform = dto.Landform ?? null;
+            target.Relief = dto.Relief ?? null;
+            target.Slope = dto.Slope ?? null;
+            target.SoilUnit = dto.SoilUnit ?? null;
+            target.NormalCircumstances = dto.NormalCircumstances ?? null;
+            target.Latitude = dto.Latitude ?? null;
+            target.Longitude = dto.Longitude ?? null;
+            target.NWI = dto.NWI ?? null;
+            target.Hydrology = dto.Hydrology;
+            target.Vegetation = dto.Vegetation;
+            target.Soil = dto.Soil;
+        }
     }
 }

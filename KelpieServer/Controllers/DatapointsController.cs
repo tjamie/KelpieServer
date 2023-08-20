@@ -75,18 +75,36 @@ namespace KelpieServer.Controllers
         // PUT: api/Datapoints/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDatapoint(string id, Datapoint datapoint)
+        public async Task<IActionResult> PutDatapoint(string id, DatapointDto datapointDto)
         {
-            if (id != datapoint.Id)
+            if (id != datapointDto.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(datapoint).State = EntityState.Modified;
+            //_context.Entry(datapoint).State = EntityState.Modified;
 
             try
             {
+                var targetDatapoint = await _context.Datapoints.FindAsync(id);
+
+                if (targetDatapoint == null)
+                {
+                    return NotFound();
+                }
+
+                var datapointMapper = new DatapointMapper();
+                // Can't create a new Datapoint object here -- would detach targetDatapoint from EF's tracking
+                datapointMapper.MapToEntity(datapointDto, ref targetDatapoint);
+                _context.Entry(targetDatapoint).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+
+                return Ok(new DatapointResponseDto
+                {
+                    Id = datapointDto.Id,
+                    ProjectId = datapointDto.ProjectId,
+                    Name = datapointDto.Name,
+                });
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -99,8 +117,6 @@ namespace KelpieServer.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
         }
 
         // POST: api/Datapoints
