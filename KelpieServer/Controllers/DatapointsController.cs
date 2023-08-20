@@ -10,7 +10,6 @@ using KelpieServer;
 using KelpieServer.Models;
 using KelpieServer.Mappers;
 
-// Will need to validate json data from front end
 namespace KelpieServer.Controllers
 {
     [Route("api/[controller]")]
@@ -33,7 +32,19 @@ namespace KelpieServer.Controllers
             {
                 return NotFound();
             }
-            return await _context.Datapoints.ToListAsync();
+            List<DatapointResponseDto> responseList = new List<DatapointResponseDto>();
+            var datapointList = await _context.Datapoints.ToListAsync();
+            foreach (var datapoint in datapointList)
+            {
+                responseList.Add(new DatapointResponseDto
+                {
+                    Id = datapoint.Id,
+                    ProjectId = datapoint.ProjectId,
+                    Name = datapoint.Name,
+                });
+            }
+
+            return Ok(responseList);
         }
 
         // GET: api/Datapoints/5
