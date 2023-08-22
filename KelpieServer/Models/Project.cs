@@ -28,8 +28,11 @@ namespace KelpieServer.Models
 
         public string? Datum { get; set; }
 
-        //[ForeignKey("ProjectId")]
-        //public ICollection<Datapoint> Datapoints { get; set; }
+        // Datapoints belonging to a given project
         public ICollection<Datapoint> Datapoints { get; } = new List<Datapoint>();
+
+        // Many-to-many for assigned users
+        public List<UserProject> UserProjects { get; } = new();
+        public List<User> Users { get; } = new();
     }
 }

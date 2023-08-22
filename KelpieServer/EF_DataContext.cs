@@ -12,15 +12,12 @@ namespace KelpieServer
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Npgsql doesn't support EF Core's JSON
-            //modelBuilder.Entity<Datapoint>().OwnsOne(
-            //    datapoint => datapoint.Hydrology, ownedNavigationBuilder =>
-            //    {
-            //        ownedNavigationBuilder.ToJson();
-            //        ownedNavigationBuilder.OwnsOne(hydrology => hydrology.SurfaceWater);
-            //        ownedNavigationBuilder.OwnsOne(hydrology => hydrology.WaterTable);
-            //        ownedNavigationBuilder.OwnsOne(hydrology => hydrology.Saturation);
-            //    });
+            // Assign UserProject keys -- many-to-many relationship between Users and Projects
+            modelBuilder.Entity<User>()
+                .HasMany(e => e.Projects)
+                .WithMany(e => e.Users)
+                .UsingEntity<UserProject>();
+
             modelBuilder.UseSerialColumns();
         }
     }
