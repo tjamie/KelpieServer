@@ -38,18 +38,11 @@ namespace KelpieServer.Models
                 this.Datum = project.Datum;
             }
         }
+        // initialize navigation property lists
         public Project()
         {
-            //this.Id = "";
-            //this.Name = "";
-            //this.Date = 0;
-            //this.Applicant = null;
-            //this.County = null;
-            //this.State = null;
-            //this.Section = null;
-            //this.Region = null;
-            //this.Subregion = null;
-            //this.Datum = null;
+            UserProjects = new List<UserProject>();
+            Users = new List<User>();
         }
         public void Update(ProjectDto project)
         {

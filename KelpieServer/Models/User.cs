@@ -18,5 +18,12 @@ namespace KelpieServer.Models
         // Many-to-many for assigned projects
         public List<UserProject> UserProjects { get; } = new();
         public List<Project> Projects { get; } = new();
+
+        // initialize navigation property lists
+        public User()
+        {
+            UserProjects = new List<UserProject>();
+            Projects = new List<Project>();
+        }
     }
 }

@@ -133,9 +133,44 @@ namespace KelpieServer.Controllers
             return NoContent();
         }
 
+        // User project assignment
+        // assign project to user
+        // POST: api/Users/5/Projects
+        [HttpPost("{userId}/projects")]
+        public async Task<IActionResult> AssignProject(int userId, string projectId)
+        {
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
+            if (!UserExists(userId))
+            {
+                return NotFound();
+            }
+            if (!ProjectExists(projectId))
+            {
+                return NotFound();
+            }
+            var user = await _context.Users.FindAsync(userId);
+            var project = await _context.Projects.FindAsync(projectId);
+            _context.UserProject.Add(new UserProject
+            {
+                UserId = userId,
+                ProjectId = projectId,
+                User = user,
+                Project = project
+            });
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         private bool UserExists(int id)
         {
             return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+        private bool ProjectExists(string id)
+        {
+            return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
