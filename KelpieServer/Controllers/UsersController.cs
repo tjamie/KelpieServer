@@ -23,7 +23,7 @@ namespace KelpieServer.Controllers
             _context = context;
         }
 
-        private string HashString(string input)
+        private static string HashString(string input)
         {
             using (SHA512 sha512 = SHA512.Create())
             {
@@ -37,29 +37,46 @@ namespace KelpieServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-          if (_context.Users == null)
-          {
-              return NotFound();
-          }
-            return await _context.Users.ToListAsync();
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
+            List<UserResponseDto> responseList = new List<UserResponseDto>();
+            var userList = await _context.Users.ToListAsync();
+
+            foreach (var user in userList)
+            {
+                responseList.Add(new UserResponseDto
+                {
+                    Id = user.Id,
+                    Username = user.Username
+                });
+            }
+
+            return Ok(responseList);
         }
 
         // GET: api/Users/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
-          if (_context.Users == null)
-          {
-              return NotFound();
-          }
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
             var user = await _context.Users.FindAsync(id);
 
             if (user == null)
             {
                 return NotFound();
             }
-
-            return user;
+            var userResponse = new UserResponseDto
+            {
+                Id = user.Id,
+                Username = user.Username
+            };
+            
+            return Ok(userResponse);
         }
 
         // PUT: api/Users/5
@@ -134,6 +151,28 @@ namespace KelpieServer.Controllers
         }
 
         // User project assignment
+        // get all projects assigned to user
+        // GET: api/Users/5/Projects
+        //[HttpGet("{id}/projects")]
+        //public IActionResult GetUserProjects(int id)
+        //{
+        //    if (_context.UserProject == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    //var user = await _context.Users.FindAsync(id);
+        //    var user = _context.Users
+        //        .Include(u => u.UserProjects)
+        //        .ThenInclude(up => up.Project)
+        //        .SingleOrDefault(u => u.Id == id);
+        //    if (user == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var projects = user.UserProjects.Select(up => up.Project).ToList();
+        //    return Ok(projects);
+        //    //return await _context.Users.ToListAsync();
+        //}
         // assign project to user
         // POST: api/Users/5/Projects
         [HttpPost("{userId}/projects")]
