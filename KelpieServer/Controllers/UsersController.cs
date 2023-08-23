@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using KelpieServer;
 using KelpieServer.Models;
 using System.Text;
+using KelpieServer.Mappers;
 
 namespace KelpieServer.Controllers
 {
@@ -117,13 +118,15 @@ namespace KelpieServer.Controllers
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<User>> PostUser(UserDto userDto)
         {
             if (_context.Users == null)
             {
                 return Problem("Entity set 'EF_DataContext.Users'  is null.");
             }
-            user.Password = HashString(user.Password);
+            userDto.Password = HashString(userDto.Password);
+            var userMapper = new UserMapper();
+            var user = userMapper.MapToEntity(userDto);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
