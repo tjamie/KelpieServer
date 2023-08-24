@@ -83,22 +83,37 @@ namespace KelpieServer.Controllers
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(int id, UserDto userDto)
         {
-            if (id != user.Id)
+            if (id != userDto.Id)
             {
                 return BadRequest();
             }
-            if (user.Password != null)
-            {
-                user.Password = HashString(user.Password);
-            }
 
-            _context.Entry(user).State = EntityState.Modified;
+            if (userDto.Password != null)
+            {
+                userDto.Password = HashString(userDto.Password);
+            }
 
             try
             {
+                var targetUser = await _context.Users.FindAsync(id);
+
+                if (targetUser == null)
+                {
+                    return NotFound();
+                }
+
+                var userMapper = new UserMapper();
+                userMapper.MapToEntity(userDto, ref targetUser);
+                _context.Entry(targetUser).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+
+                return Ok(new UserResponseDto
+                {
+                    Id = userDto.Id,
+                    Username = userDto.Username
+                });
             }
             catch (DbUpdateConcurrencyException)
             {
