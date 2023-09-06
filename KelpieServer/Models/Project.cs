@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KelpieServer.Models
 {
-    public partial class Project
+    public class Project
     {
         [Required]
         public string Id { get; set; } = string.Empty;
@@ -34,5 +34,12 @@ namespace KelpieServer.Models
         // Many-to-many for assigned users
         public List<UserProject> UserProjects { get; } = new();
         public List<User> Users { get; } = new();
+
+        // initialize navigation property lists
+        public Project()
+        {
+            UserProjects = new List<UserProject>();
+            Users = new List<User>();
+        }
     }
 }

@@ -85,9 +85,5 @@ namespace KelpieServer.Models
                 this.Datum = datum;
             }
         }
-        //public ProjectDto Deserialize(string jsonString)
-        //{
-
-        //}
     }
 }
