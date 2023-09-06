@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KelpieServer;
 using KelpieServer.Models;
+using KelpieServer.Mappers;
 
 namespace KelpieServer.Controllers
 {
@@ -95,20 +96,23 @@ namespace KelpieServer.Controllers
         //    return NoContent();
         //}
 
-        //// POST: api/Projects
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<Project>> PostProject(ProjectDto project)
-        //{
-        //  if (_context.Projects == null)
-        //  {
-        //      return Problem("Entity set 'EF_DataContext.Projects'  is null.");
-        //  }
-        //    _context.Projects.Add(new Project(project));
-        //    await _context.SaveChangesAsync();
+        // POST: api/Projects
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<Project>> PostProject(ProjectDto projectDto)
+        {
+            if (_context.Projects == null)
+            {
+                return Problem("Entity set 'EF_DataContext.Projects'  is null.");
+            }
 
-        //    return CreatedAtAction("GetProject", new { id = project.Id }, project);
-        //}
+            var projectMapper = new ProjectMapper();
+            var project = projectMapper.MapToEntity(projectDto);
+            _context.Projects.Add(project);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetProject", new { id = project.Id }, project);
+        }
 
         // DELETE: api/Projects/5
         [HttpDelete("{id}")]
