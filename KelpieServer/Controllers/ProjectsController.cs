@@ -68,33 +68,43 @@ namespace KelpieServer.Controllers
 
         // PUT: api/Projects/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutProject(string id, ProjectDto project)
-        //{
-        //    if (id != project.Id)
-        //    {
-        //        return BadRequest();
-        //    }
-        //    try
-        //    {
-        //        var targetProject = await _context.Projects.FindAsync(id);
-        //        targetProject?.Update(project);
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!ProjectExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutProject(string id, ProjectDto projectDto)
+        {
+            if (id != projectDto.Id)
+            {
+                return BadRequest();
+            }
+            try
+            {
+                var targetProject = await _context.Projects.FindAsync(id);
 
-        //    return NoContent();
-        //}
+                if (targetProject == null)
+                {
+                    return NotFound();
+                }
+
+                var projectMapper = new ProjectMapper();
+                projectMapper.MapToEntity(projectDto, ref targetProject);
+                await _context.SaveChangesAsync();
+
+                return Ok(new ProjectResponseDto
+                {
+                    Name = projectDto.Name,
+                });
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ProjectExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
 
         // POST: api/Projects
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
