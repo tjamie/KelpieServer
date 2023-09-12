@@ -171,26 +171,39 @@ namespace KelpieServer.Controllers
         // User project assignment
         // get all projects assigned to user
         // GET: api/Users/5/Projects
-        //[HttpGet("{id}/projects")]
-        //public IActionResult GetUserProjects(int id)
-        //{
-        //    if (_context.UserProject == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    //var user = await _context.Users.FindAsync(id);
-        //    var user = _context.Users
-        //        .Include(u => u.UserProjects)
-        //        .ThenInclude(up => up.Project)
-        //        .SingleOrDefault(u => u.Id == id);
-        //    if (user == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    var projects = user.UserProjects.Select(up => up.Project).ToList();
-        //    return Ok(projects);
-        //    //return await _context.Users.ToListAsync();
-        //}
+        [HttpGet("{id}/projects")]
+        public IActionResult GetUserProjects(int id)
+        {
+            if (_context.UserProject == null)
+            {
+                return NotFound();
+            }
+            if (!UserExists(id))
+            {
+                return NotFound();
+            }
+
+            //var user = await _context.Users.FindAsync(id);
+            var user = _context.Users
+                .Include(u => u.UserProjects)
+                .ThenInclude(up => up.Project)
+                .SingleOrDefault(u => u.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var projects = user.UserProjects.Select(up => up.Project).ToList();
+            List<ProjectResponseDto> responseList = new List<ProjectResponseDto>();
+            foreach (var project in projects)
+            {
+                responseList.Add(new ProjectResponseDto
+                {
+                    Name = project.Name
+                });
+            }
+            return Ok(responseList);
+        }
+
         // assign project to user
         // POST: api/Users/5/Projects
         [HttpPost("{userId}/projects")]
