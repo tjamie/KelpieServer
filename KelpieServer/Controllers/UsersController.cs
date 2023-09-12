@@ -196,20 +196,23 @@ namespace KelpieServer.Controllers
         [HttpPost("{userId}/projects")]
         public async Task<IActionResult> AssignProject(int userId, string projectId)
         {
-            if (_context.Users == null)
+            if (_context.Users == null || _context.Projects == null)
             {
                 return NotFound();
             }
-            if (!UserExists(userId))
+            if (!UserExists(userId) || !ProjectExists(projectId))
             {
                 return NotFound();
             }
-            if (!ProjectExists(projectId))
-            {
-                return NotFound();
-            }
+
             var user = await _context.Users.FindAsync(userId);
             var project = await _context.Projects.FindAsync(projectId);
+
+            if (user == null || project == null)
+            {
+                return NotFound();
+            }
+
             _context.UserProject.Add(new UserProject
             {
                 UserId = userId,
