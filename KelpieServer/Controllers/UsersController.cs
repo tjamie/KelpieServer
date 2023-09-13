@@ -237,6 +237,42 @@ namespace KelpieServer.Controllers
             return NoContent();
         }
 
+        // ie, unassign a project
+        // DELETE: api/Users/5/Projects
+        [HttpDelete("{userId}/projects")]
+        public async Task<IActionResult> UnassignProject(int userId, string projectId)
+        {
+            if (_context.Users == null || _context.Projects == null)
+            {
+                return NotFound();
+            }
+            if (!UserExists(userId) || !ProjectExists(projectId))
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users.FindAsync(userId);
+            var project = await _context.Projects.FindAsync(projectId);
+
+            if (user == null || project == null)
+            {
+                return NotFound();
+            }
+
+            if (!UserProjectExists(userId, projectId))
+            {
+                return NotFound();
+            }
+
+            user.Projects.Remove(project);
+            project.Users.Remove(user);
+
+            //var userProjectTarget = await _context.UserProjects
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         private bool UserExists(int id)
         {
             return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
@@ -244,6 +280,19 @@ namespace KelpieServer.Controllers
         private bool ProjectExists(string id)
         {
             return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+        private bool UserProjectExists(int userId, string projectId)
+        {
+            var user = _context.Users
+                .Include(u => u.UserProjects)
+                .ThenInclude(up => up.Project)
+                .SingleOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                return false;
+            }
+            var projects = user.UserProjects.Select(up => up.Project).ToList();
+            return (projects?.Any(e => e.Id == projectId)).GetValueOrDefault();
         }
     }
 }
