@@ -17,9 +17,10 @@ namespace KelpieServer.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly EF_DataContext _context;
+        //private readonly EF_DataContext _context;
+        private readonly IDataContext _context;
 
-        public UsersController(EF_DataContext context)
+        public UsersController(IDataContext context)
         {
             _context = context;
         }
@@ -106,7 +107,8 @@ namespace KelpieServer.Controllers
 
                 var userMapper = new UserMapper();
                 userMapper.MapToEntity(userDto, ref targetUser);
-                _context.Entry(targetUser).State = EntityState.Modified;
+                //_context.Entry(targetUser).State = EntityState.Modified;
+                _context.MarkAsModified(targetUser);
                 await _context.SaveChangesAsync();
 
                 return Ok(new UserResponseDto
