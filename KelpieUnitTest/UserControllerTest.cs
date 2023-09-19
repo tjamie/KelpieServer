@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using KelpieServer;
 using Microsoft.EntityFrameworkCore;
 
-namespace KelpieUnitTest
+namespace KelpieServer.Tests
 {
     public class UserControllerTest
     {
@@ -34,20 +34,22 @@ namespace KelpieUnitTest
             // Arrange
             var dbContext = DbContextHelper.GetMockedDbContextWithUsers();
             var controller = new UsersController(dbContext.Object);
-            //var usersDbSetMock = new Mock<DbSet<User>>();
-            //usersDbSetMock.Setup(o => o.FindAsync(It.IsAny<object[]>()))
-            //    .ReturnsAsync((object[] keyValues) =>
-            //    {
-            //        var id = (int)keyValues[0];
-            //        return users.SingleOrDefault(u => u.Id == id);
-            //    });
+            var users = DbContextHelper.GetMockUserList();
+            var usersDbSetMock = new Mock<DbSet<User>>();
+            // Replace FindAsync() from controller
+            usersDbSetMock.Setup(o => o.FindAsync(It.IsAny<object[]>()))
+                .ReturnsAsync((object[] keyValues) =>
+                {
+                    var id = (int)keyValues[0];
+                    return users.SingleOrDefault(u => u.Id == id);
+                });
+            dbContext.Setup(o => o.Users).Returns(usersDbSetMock.Object);
 
             // Act
             var userResponse = await controller.GetUser(3);
 
             // Assert
             var result = userResponse.Result as OkObjectResult;
-            //Assert.IsType<OkObjectResult>(result);
             Assert.NotNull(result);
             var user = result.Value as UserResponseDto;
             Assert.NotNull(user);
