@@ -84,7 +84,7 @@ namespace KelpieServer.Controllers
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, UserDto userDto)
+        public async Task<ActionResult<User>> PutUser(int id, UserDto userDto)
         {
             if (id != userDto.Id)
             {
@@ -128,8 +128,6 @@ namespace KelpieServer.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
         }
 
         // POST: api/Users
