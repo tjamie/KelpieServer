@@ -10,6 +10,7 @@ using KelpieServer;
 using KelpieServer.Models;
 using System.Text;
 using KelpieServer.Mappers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace KelpieServer.Controllers
 {
@@ -37,6 +38,7 @@ namespace KelpieServer.Controllers
 
         // GET: api/Users
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             if (_context.Users == null)
@@ -60,6 +62,7 @@ namespace KelpieServer.Controllers
 
         // GET: api/Users/5
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
             if (_context.Users == null)
@@ -135,6 +138,7 @@ namespace KelpieServer.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(UserDto userDto)
         {
+            // TODO check if username already exists
             if (_context.Users == null)
             {
                 return Problem("Entity set 'EF_DataContext.Users'  is null.");
