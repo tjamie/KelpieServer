@@ -1,17 +1,18 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using KelpieServer.Models;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Cryptography;
-using KelpieServer.Mappers;
-using System.Data;
+
+[assembly: InternalsVisibleTo("KelpieServer.Tests")]
 
 namespace KelpieServer.Controllers
 {
@@ -21,12 +22,13 @@ namespace KelpieServer.Controllers
     {
         private readonly IDataContext _context;
         private readonly IConfiguration _configuration;
-        private readonly ILogger<AuthController> _logger;
+        //private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IConfiguration configuration, ILogger<AuthController> logger, IDataContext context)
+        //public AuthController(IConfiguration configuration, ILogger<AuthController> logger, IDataContext context)
+        public AuthController(IConfiguration configuration, IDataContext context)
         {
             _configuration = configuration;
-            _logger = logger;
+            //_logger = logger;
             _context = context;
         }
 
@@ -44,7 +46,7 @@ namespace KelpieServer.Controllers
             return Ok(token);
         }
 
-        private string GenerateToken(UserDto user)
+        internal string GenerateToken(UserDto user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
