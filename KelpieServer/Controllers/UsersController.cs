@@ -11,11 +11,13 @@ using KelpieServer.Models;
 using System.Text;
 using KelpieServer.Mappers;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace KelpieServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         //private readonly EF_DataContext _context;
@@ -89,7 +91,19 @@ namespace KelpieServer.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<User>> PutUser(int id, UserDto userDto)
         {
-            if (id != userDto.Id)
+            // Allow if target user = token user OR if token user is admin
+            ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
+            int httpUserId = -1;
+            bool httpUserAdmin = false;
+            if (identity != null)
+            {
+                var _identity = identity.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var _role = identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
+                httpUserId = int.Parse(_identity);
+                httpUserAdmin = _role != null && _role.Value == "Admin" ? true : false;
+            }
+
+            if (id != userDto.Id || (id != httpUserId && !httpUserAdmin))
             {
                 return BadRequest();
             }
@@ -136,6 +150,7 @@ namespace KelpieServer.Controllers
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<User>> PostUser(UserDto userDto)
         {
             // TODO check if username already exists
@@ -156,10 +171,28 @@ namespace KelpieServer.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
+            // Allow if target user = token user OR if token user is admin
+            ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
+            int httpUserId = -1;
+            bool httpUserAdmin = false;
+            if (identity != null)
+            {
+                var _identity = identity.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var _role = identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
+                httpUserId = int.Parse(_identity);
+                httpUserAdmin = _role != null && _role.Value == "Admin" ? true : false;
+            }
+
+            if (id != httpUserId && !httpUserAdmin)
+            {
+                return BadRequest();
+            }
+
             if (_context.Users == null)
             {
                 return NotFound();
             }
+
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
