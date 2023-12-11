@@ -158,6 +158,9 @@ namespace KelpieServer.Controllers
             {
                 return Problem("Entity set 'EF_DataContext.Users'  is null.");
             }
+            if (_context.Users.Any(u => u.Username.ToLower() == userDto.Username.ToLower())){
+                return BadRequest("Username already exists.");
+            }
             userDto.Password = HashString(userDto.Password);
             var userMapper = new UserMapper();
             var user = userMapper.MapToEntity(userDto);
