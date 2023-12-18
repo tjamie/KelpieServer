@@ -172,7 +172,7 @@ namespace KelpieServer.Controllers
 
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUserById(int id)
         {
             // Allow if target user = token user OR if token user is admin
             ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
@@ -200,6 +200,44 @@ namespace KelpieServer.Controllers
             if (user == null)
             {
                 return NotFound();
+            }
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // DELETE: api/Users
+        [HttpDelete]
+        public async Task<IActionResult> DeleteUser(UserPasswordDto passwordDto)
+        {
+            // Delete user's own account based on token
+            ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
+            int httpUserId = -1;
+            if (identity != null)
+            {
+                var _identity = identity.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var _role = identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
+                httpUserId = int.Parse(_identity);
+            }
+
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users.FindAsync(httpUserId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // confirm password
+            string _password = HashString(passwordDto.Password);
+            if (user.Password != _password)
+            {
+                return BadRequest("Invalid password");
             }
 
             _context.Users.Remove(user);
