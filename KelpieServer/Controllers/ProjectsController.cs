@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using KelpieServer;
 using KelpieServer.Models;
 using KelpieServer.Mappers;
+using System.Security.Claims;
 
 namespace KelpieServer.Controllers
 {
@@ -118,12 +119,39 @@ namespace KelpieServer.Controllers
                 return Problem("Entity set 'EF_DataContext.Projects'  is null.");
             }
 
+            // Add project
             var projectMapper = new ProjectMapper();
             var project = projectMapper.MapToEntity(projectDto);
             _context.Projects.Add(project);
+
+            // Associate new project with active user
+            ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
+            int httpUserId = -1;
+            if (identity != null)
+            {
+                var _identity = identity.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var _role = identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
+                httpUserId = int.Parse(_identity);
+            }
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
+            var user = await _context.Users.FindAsync(httpUserId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            _context.UserProject.Add(new UserProject
+            {
+                UserId = user.Id,
+                ProjectId = project.Id
+            });
+
+            // Save changes
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProject", new { id = project.Id }, project);
+            return CreatedAtAction("GetProject", new { id = project.Id }, projectDto);
         }
 
         // DELETE: api/Projects/5
