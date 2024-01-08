@@ -50,10 +50,10 @@ namespace KelpieServer.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ProjectDto>> GetProject(string id)
         {
-          if (_context.Projects == null)
-          {
-              return NotFound();
-          }
+            if (_context.Projects == null)
+            {
+                return NotFound();
+            }
             var project = await _context.Projects.FindAsync(id);
 
             if (project == null)
@@ -76,8 +76,21 @@ namespace KelpieServer.Controllers
         {
             if (id != projectDto.Id)
             {
-                return BadRequest();
+                return BadRequest("Project ID mismatch");
             }
+
+            // Reject if user not assigned to project
+            ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity == null)
+            {
+                return BadRequest("Invalid claims identity");
+            }
+            var _identity = identity.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            if (!UserProjectExists(int.Parse(_identity), projectDto.Id))
+            {
+                return BadRequest("Target project has not been assigned to user");
+            }
+
             try
             {
                 var targetProject = await _context.Projects.FindAsync(id);
@@ -95,6 +108,72 @@ namespace KelpieServer.Controllers
                 {
                     Name = projectDto.Name,
                 });
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ProjectExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        // PUT: api/Projects/5/sync
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}/sync")]
+        public async Task<IActionResult> SyncProject(string id, ProjectDto projectDto)
+        {
+            if (id != projectDto.Id)
+            {
+                return BadRequest("Project ID mismatch");
+            }
+
+            // Reject if user not assigned to project
+            ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity == null)
+            {
+                return BadRequest("Invalid claims identity");
+            }
+            var _identity = identity.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            if (!UserProjectExists(int.Parse(_identity), projectDto.Id))
+            {
+                return BadRequest("Target project has not been assigned to user");
+            }
+
+            try
+            {
+                var targetProject = await _context.Projects.FindAsync(id);
+
+                if (targetProject == null)
+                {
+                    return NotFound();
+                }
+
+                #region prepare response object
+                // Only apply update if targetProject date is older than projectDto
+
+                ProjectSyncResponseDto responseDto = new ProjectSyncResponseDto();
+                if (targetProject.Date > projectDto.Date)
+                {
+                    // targetProject is newer -- add database data to response
+                    ProjectMapper projectMapper = new ProjectMapper();
+                    responseDto.ProjectDto = projectMapper.MapToEntity(targetProject);
+
+                    // Also (eventually) proceed to datapoints associated with target project id
+                }
+                else
+                {
+                    // targetProject is either newer or same age as projectDto. Update project, then proceed to associated datapoints.
+                    var projectMapper = new ProjectMapper();
+                    projectMapper.MapToEntity(projectDto, ref targetProject);
+                    await _context.SaveChangesAsync();
+                }
+                return Ok(responseDto);
+                #endregion
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -177,6 +256,19 @@ namespace KelpieServer.Controllers
         private bool ProjectExists(string id)
         {
             return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+        private bool UserProjectExists(int userId, string projectId)
+        {
+            var user = _context.Users
+                .Include(u => u.UserProjects)
+                .ThenInclude(up => up.Project)
+                .SingleOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                return false;
+            }
+            var projects = user.UserProjects.Select(up => up.Project).ToList();
+            return (projects?.Any(e => e.Id == projectId)).GetValueOrDefault();
         }
     }
 }

@@ -34,5 +34,21 @@ namespace KelpieServer.Mappers
             target.Subregion = dto.Subregion ?? null;
             target.Datum = dto.Datum ?? null;
         }
+
+        public ProjectDto MapToEntity(Project project)
+        {
+            return new ProjectDto
+            {
+                Id = project.Id,
+                Date = project.Date,
+                Name = project.Name,
+                Applicant = project.Applicant ?? null,
+                County = project.County ?? null,
+                State = project.State ?? null,
+                Section = project.Section ?? null,
+                Subregion = project.Subregion ?? null,
+                Datum = project.Datum ?? null
+            };
+        }
     }
 }

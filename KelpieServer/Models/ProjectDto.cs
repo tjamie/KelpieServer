@@ -16,6 +16,11 @@ namespace KelpieServer.Models
         public string? Region { get; set; }
         public string? Subregion { get; set; }
         public string? Datum { get; set; }
+
+        public ProjectDto()
+        {
+            // (empty)
+        }
         public ProjectDto(Project project)
         {
             this.Id = project.Id;
