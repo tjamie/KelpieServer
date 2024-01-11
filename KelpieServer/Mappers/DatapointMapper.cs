@@ -47,5 +47,28 @@ namespace KelpieServer.Mappers
             target.Vegetation = dto.Vegetation;
             target.Soil = dto.Soil;
         }
+
+        public DatapointDto MapToEntity(Datapoint datapoint)
+        {
+            return new DatapointDto
+            {
+                Id = datapoint.Id,
+                ProjectId = datapoint.ProjectId,
+                Date = datapoint.Date,
+                Name = datapoint.Name,
+                Authors = datapoint.Authors,
+                Landform = datapoint.Landform,
+                Relief = datapoint.Relief,
+                Slope = datapoint.Slope,
+                SoilUnit = datapoint.SoilUnit,
+                NormalCircumstances = datapoint.NormalCircumstances,
+                Latitude = datapoint.Latitude,
+                Longitude = datapoint.Longitude,
+                NWI = datapoint.NWI,
+                Hydrology = datapoint.Hydrology,
+                Vegetation = datapoint.Vegetation,
+                Soil = datapoint.Soil
+            };
+        }
     }
 }

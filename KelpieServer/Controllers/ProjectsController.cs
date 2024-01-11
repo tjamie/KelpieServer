@@ -69,6 +69,36 @@ namespace KelpieServer.Controllers
             return Ok(projectResponse);
         }
 
+        // GET: api/Projects/5/Datapoints
+        [HttpGet("{id}/datapoints")]
+        public IActionResult GetProjectDatapoints(string id)
+        {
+            //TODO add authentication such that only users assigned to project can view datapoints
+
+            if (_context.Projects == null)
+            {
+                return NotFound();
+            }
+            
+            var project = _context.Projects
+                .Include (p => p.Datapoints)
+                .SingleOrDefault(p => p.Id == id);
+
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            var datapointsResponse = new List<DatapointDto>();
+            var datapointMapper = new DatapointMapper();
+            foreach (Datapoint datapoint in project.Datapoints)
+            {
+                datapointsResponse.Add(datapointMapper.MapToEntity(datapoint));
+            }
+
+            return Ok(datapointsResponse);
+        }
+
         // PUT: api/Projects/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -153,8 +183,8 @@ namespace KelpieServer.Controllers
                     return NotFound();
                 }
 
-                #region prepare response object
-                // Only apply update if targetProject date is older than projectDto
+                #region update database and prepare response object
+                // Only apply update to database if targetProject date is older than projectDto
 
                 ProjectSyncResponseDto responseDto = new ProjectSyncResponseDto();
                 if (targetProject.Date > projectDto.Date)
@@ -163,7 +193,6 @@ namespace KelpieServer.Controllers
                     ProjectMapper projectMapper = new ProjectMapper();
                     responseDto.ProjectDto = projectMapper.MapToEntity(targetProject);
 
-                    // Also (eventually) proceed to datapoints associated with target project id
                 }
                 else
                 {
@@ -172,6 +201,10 @@ namespace KelpieServer.Controllers
                     projectMapper.MapToEntity(projectDto, ref targetProject);
                     await _context.SaveChangesAsync();
                 }
+
+                // Handle datapoints -- for each that's newer in database than in submitted data, add updated version to response object
+                // else update database with newer version submitted by user
+
                 return Ok(responseDto);
                 #endregion
             }
