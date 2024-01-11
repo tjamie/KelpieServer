@@ -155,8 +155,17 @@ namespace KelpieServer.Controllers
         // PUT: api/Projects/5/sync
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}/sync")]
-        public async Task<IActionResult> SyncProject(string id, ProjectDto projectDto)
+        public async Task<IActionResult> SyncProject(string id, ProjectSyncDto projectSyncDto)
         {
+            var projectDto = projectSyncDto.ProjectDto;
+            var projectDatapointsInput = projectSyncDto.DatapointDtoList;
+            DatapointMapper datapointMapper = new DatapointMapper();
+
+            if (projectDto == null)
+            {
+                return BadRequest("No project submitted");
+            }
+
             if (id != projectDto.Id)
             {
                 return BadRequest("Project ID mismatch");
@@ -176,7 +185,10 @@ namespace KelpieServer.Controllers
 
             try
             {
-                var targetProject = await _context.Projects.FindAsync(id);
+                //var targetProject = await _context.Projects.FindAsync(id);
+                var targetProject = _context.Projects
+                    .Include(p => p.Datapoints)
+                    .SingleOrDefault(p => p.Id == id);
 
                 if (targetProject == null)
                 {
@@ -186,7 +198,7 @@ namespace KelpieServer.Controllers
                 #region update database and prepare response object
                 // Only apply update to database if targetProject date is older than projectDto
 
-                ProjectSyncResponseDto responseDto = new ProjectSyncResponseDto();
+                ProjectSyncDto responseDto = new ProjectSyncDto();
                 if (targetProject.Date > projectDto.Date)
                 {
                     // targetProject is newer -- add database data to response
@@ -204,6 +216,46 @@ namespace KelpieServer.Controllers
 
                 // Handle datapoints -- for each that's newer in database than in submitted data, add updated version to response object
                 // else update database with newer version submitted by user
+
+                // iterate through each relevant datapoint in DB, update DB or add to response accordingly, then remove from projectDatapoints input
+                // For each datapoint that is in database but not in projectDatapoints input, automatically add to response
+                foreach (Datapoint datapoint in targetProject.Datapoints)
+                {
+                    DatapointDto? pairedDatapointDto = projectDatapointsInput?.SingleOrDefault(d => d.Id == datapoint.Id);
+
+                    // if null (ie, datapoint in DB but not submitted by user), add to response
+                    if (pairedDatapointDto == null)
+                    {
+                        responseDto.AddDatapointDto(datapointMapper.MapToEntity(datapoint));
+                    }
+                    // if not null, add to response if version in DB is newer, else update DB version with user submission
+                    else if (datapoint.Date > pairedDatapointDto.Date)
+                    {
+                        responseDto.AddDatapointDto(datapointMapper.MapToEntity(datapoint));
+                    }
+                    // if not null and user's submitted version is newer, update DB version and do not add to response object
+                    else
+                    {
+                        var contextDp = await _context.Datapoints.FindAsync(datapoint.Id);
+                        if (contextDp != null)
+                        {
+                            datapointMapper.MapToEntity(pairedDatapointDto, ref contextDp);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                    // remove from list of input datapoints
+                    projectDatapointsInput?.RemoveAll(d => d.Id == datapoint.Id);
+                }
+
+                // Any remaining items in projectDatapointsInput are not currently in the DB, so update the DB accordingly
+                if (projectDatapointsInput != null && projectDatapointsInput.Count > 0)
+                {
+                    foreach (DatapointDto datapointDto in projectDatapointsInput)
+                    {
+                        _context.Datapoints.Add(datapointMapper.MapToEntity(datapointDto));
+                    }
+                    await _context.SaveChangesAsync();
+                }
 
                 return Ok(responseDto);
                 #endregion

@@ -1,6 +1,6 @@
 ﻿namespace KelpieServer.Models
 {
-    public class ProjectSyncResponseDto
+    public class ProjectSyncDto
     {
         public ProjectDto? ProjectDto { get; set; }
         public List<DatapointDto>? DatapointDtoList { get; set; }
