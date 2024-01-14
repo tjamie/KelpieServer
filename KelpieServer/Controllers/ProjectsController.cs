@@ -154,6 +154,7 @@ namespace KelpieServer.Controllers
 
         // PUT: api/Projects/5/sync
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // This is very very very ugly right now. Wanted to avoid making several API calls from a single button within the app.
         [HttpPut("{id}/sync")]
         public async Task<IActionResult> SyncProject(string id, ProjectSyncDto projectSyncDto)
         {
@@ -171,6 +172,28 @@ namespace KelpieServer.Controllers
                 return BadRequest("Project ID mismatch");
             }
 
+            // Get project, then create it if it doesn't exist in DB
+            var targetProject = _context.Projects
+                .Include(p => p.Datapoints)
+                .SingleOrDefault(p => p.Id == id);
+
+            if (targetProject == null)
+            {
+                //return NotFound("Project does not exist");
+                // post project if it does not already exist in DB. This should also associated it with the active user.
+                await PostProject(projectDto);
+
+                // Attempt to get project again. If for some reason it still doesn't exist, reject.
+                targetProject = _context.Projects
+                    .Include(p => p.Datapoints)
+                    .SingleOrDefault(p => p.Id == id);
+
+                if (targetProject == null)
+                {
+                    return NotFound("Project does not exist");
+                }
+            }
+
             // Reject if user not assigned to project
             ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
             if (identity == null)
@@ -186,14 +209,14 @@ namespace KelpieServer.Controllers
             try
             {
                 //var targetProject = await _context.Projects.FindAsync(id);
-                var targetProject = _context.Projects
-                    .Include(p => p.Datapoints)
-                    .SingleOrDefault(p => p.Id == id);
+                //var targetProject = _context.Projects
+                //    .Include(p => p.Datapoints)
+                //    .SingleOrDefault(p => p.Id == id);
 
-                if (targetProject == null)
-                {
-                    return NotFound();
-                }
+                //if (targetProject == null)
+                //{
+                //    return NotFound();
+                //}
 
                 #region update database and prepare response object
                 // Only apply update to database if targetProject date is older than projectDto
