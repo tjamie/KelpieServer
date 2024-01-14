@@ -30,4 +30,8 @@ KelpieServer utilizes ASP.NET and Entity Framework to create a server-side appli
         "AllowedHosts": "*"
         }
    - You will need to replace the CAPITALIZED values above with your own information.     
+1. Create a migration and update the database accordingly. This can be done with the following commands in Visual Studio's Package Manager Console:
+
+        add-migration MyFirstMigration
+        update-database
 1. Build and run the application.
